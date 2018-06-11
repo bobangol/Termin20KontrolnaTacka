@@ -13,9 +13,9 @@ import java.util.List;
 
 public class GlumacAdapter extends RecyclerView.Adapter<GlumacAdapter.ViewHolder> {
         private List<String> glumci;
-        private MasterFragment.OnItemSelectedListener listener;
+        private MasterFragment.OnProductSelectedListener listener;
 
-        public GlumacAdapter(MasterFragment.OnItemSelectedListener listener, List<String> glumci) {
+        public GlumacAdapter(MasterFragment.OnProductSelectedListener listener, List<String> glumci) {
             this.glumci = glumci;
             this.listener = listener;
         }
@@ -37,7 +37,7 @@ public class GlumacAdapter extends RecyclerView.Adapter<GlumacAdapter.ViewHolder
             holder.textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    listener.onItemSelected(pos);
+                    listener.onProductSelected(pos);
                 }
             });
         }

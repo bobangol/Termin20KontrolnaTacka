@@ -9,6 +9,7 @@ import java.util.Locale;
 
 public class Glumac {
 
+    private int id;
     private String ime;
     private String prezime;
     private String biografija;
@@ -18,7 +19,8 @@ public class Glumac {
     private Date datumSmrti;
     private List<Film> filmovi;
 
-    public Glumac(String ime, String prezime, String biografija, String foto, int ocena, Date datumRodjenja, Date datumSmrti, List<Film> filmovi) {
+    public Glumac(int id, String ime, String prezime, String biografija, String foto, int ocena, Date datumRodjenja, Date datumSmrti, List<Film> filmovi) {
+        this.id = id;
         this.ime = ime;
         this.prezime = prezime;
         this.biografija = biografija;
@@ -27,6 +29,14 @@ public class Glumac {
         this.datumRodjenja = datumRodjenja;
         this.datumSmrti = datumSmrti;
         this.filmovi = filmovi;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getIme() {

@@ -7,7 +7,9 @@ import android.os.Bundle;
 import com.example.androiddevelopment.termin20kontrolnatacka.fragments.DetailFragment;
 import com.example.androiddevelopment.termin20kontrolnatacka.fragments.MasterFragment;
 
-public class MainActivity extends AppCompatActivity implements MasterFragment.OnItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements MasterFragment.OnProductSelectedListener {
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,10 +27,11 @@ public class MainActivity extends AppCompatActivity implements MasterFragment.On
         }
 
 
+
     }
 
     @Override
-    public void onItemSelected(int position) {
+    public void onProductSelected(int position) {
         DetailFragment detailFragment = new DetailFragment();
         detailFragment.setContent(position);
         FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -37,4 +40,6 @@ public class MainActivity extends AppCompatActivity implements MasterFragment.On
         ft.addToBackStack(null);
         ft.commit();
     }
+
+
 }

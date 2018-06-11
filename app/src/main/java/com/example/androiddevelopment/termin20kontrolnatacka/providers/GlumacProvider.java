@@ -11,9 +11,9 @@ public class GlumacProvider {
     public static List<Glumac> getGlumci() {
         List<Glumac> glumci = new ArrayList<>();
 
-        glumci.add(new Glumac("Dragan", "Nikolic", "biografija", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi()));
-        glumci.add(new Glumac("Petar", "Nikolic", "biografija1", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi()));
-        glumci.add(new Glumac("Djole", "Nikolic", "biografija2", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi()));
+        glumci.add(new Glumac(1,"Dragan", "Nikolic", "biografija", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi()));
+        glumci.add(new Glumac(2, "Petar", "Nikolic", "biografija 1", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi()));
+        glumci.add(new Glumac(3, "Djole", "Nikolic", "biografija 2", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi()));
         return  glumci;
     }
 
@@ -30,11 +30,11 @@ public class GlumacProvider {
 
         switch (id) {
             case 0:
-                return new Glumac("Dragan", "Nikolic", "biografija", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi());
+                return new Glumac(1, "Dragan", "Nikolic", "biografija", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi());
             case 1:
-                return new Glumac("Petar", "Nikolic", "biografija1", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi());
+                return new Glumac(2, "Petar", "Nikolic", "biografija 1", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi());
             case 2:
-                return new Glumac("Djole", "Nikolic", "biografija2", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi());
+                return new Glumac(3,"Djole", "Nikolic", "biografija 2", "dragan.jpg", 10, new Date(1950, 12, 05), new Date(1950, 12, 05), FilmProvider.getFilmovi());
             default:
                 return null;
         }
