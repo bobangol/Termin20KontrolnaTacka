@@ -13,11 +13,11 @@ import java.util.List;
 
 public class ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRecyclerViewAdapter.ViewHolder> {
 
-    private List<Glumac> products;
+    private List<Glumac> glumci;
     private OnProductClickedListener listener;
 
     public ProductsRecyclerViewAdapter(List<Glumac> productList, OnProductClickedListener listener){
-        products = productList;
+        glumci = productList;
         this.listener = listener;
     }
 
@@ -30,8 +30,8 @@ public class ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRe
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        final int productId = products.get(position).getId();
-        holder.tvIme.setText(products.get(position).getIme());
+        final int productId = glumci.get(position).getId();
+        holder.tvIme.setText(glumci.get(position).getIme() + " " + glumci.get(position).getPrezime());
         holder.tvIme.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -43,7 +43,7 @@ public class ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRe
 
     @Override
     public int getItemCount() {
-        return products.size();
+        return glumci.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{

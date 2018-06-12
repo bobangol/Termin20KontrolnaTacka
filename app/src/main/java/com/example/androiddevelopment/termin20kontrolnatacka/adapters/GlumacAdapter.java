@@ -8,14 +8,15 @@ import android.widget.TextView;
 
 import com.example.androiddevelopment.termin20kontrolnatacka.R;
 import com.example.androiddevelopment.termin20kontrolnatacka.fragments.MasterFragment;
+import com.example.androiddevelopment.termin20kontrolnatacka.model.Glumac;
 
 import java.util.List;
 
 public class GlumacAdapter extends RecyclerView.Adapter<GlumacAdapter.ViewHolder> {
-        private List<String> glumci;
+        private List<Glumac> glumci;
         private MasterFragment.OnProductSelectedListener listener;
 
-        public GlumacAdapter(MasterFragment.OnProductSelectedListener listener, List<String> glumci) {
+        public GlumacAdapter(MasterFragment.OnProductSelectedListener listener, List<Glumac> glumci) {
             this.glumci = glumci;
             this.listener = listener;
         }
@@ -31,13 +32,13 @@ public class GlumacAdapter extends RecyclerView.Adapter<GlumacAdapter.ViewHolder
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(ViewHolder holder, final int position) {
             final int pos = position;
-            holder.textView.setText(glumci.get(position));
+            holder.textView.setText(glumci.get(position).getIme() + " " + glumci.get(position).getPrezime());
             holder.textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    listener.onProductSelected(pos);
+                    listener.onProductSelected(position);
                 }
             });
         }

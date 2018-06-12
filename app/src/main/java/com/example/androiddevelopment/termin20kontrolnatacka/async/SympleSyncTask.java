@@ -7,7 +7,7 @@ import android.widget.Toast;
 import com.example.androiddevelopment.termin20kontrolnatacka.fragments.MasterFragment;
 
 public class SympleSyncTask {
-    public class SimpleSyncTask extends AsyncTask<Void, Void, Void> {
+    public static class SimpleSyncTask extends AsyncTask<Void, Void, Void> {
 
         private Activity activity;
         private MasterFragment.OnProductSelectedListener listener;
