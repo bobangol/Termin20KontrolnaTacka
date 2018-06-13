@@ -2,6 +2,7 @@ package com.example.androiddevelopment.termin20kontrolnatacka;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -233,6 +234,25 @@ public class MainActivity extends AppCompatActivity implements MasterFragment.On
             detailShown = false;
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
+
+        setUpReceiver();
+        setUpManager();
+
+    }
+
+    private void setUpReceiver(){
+        sync = new SimpleReceiver();
+
+        //registracija jednog filtera
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("SYNC_DATA");
+        registerReceiver(sync, filter);
     }
 
 

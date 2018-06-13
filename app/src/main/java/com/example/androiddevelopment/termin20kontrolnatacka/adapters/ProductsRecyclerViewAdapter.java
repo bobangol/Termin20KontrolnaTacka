@@ -11,7 +11,7 @@ import com.example.androiddevelopment.termin20kontrolnatacka.model.Glumac;
 
 import java.util.List;
 
-public class ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRecyclerViewAdapter.ViewHolder> {
+public class    ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRecyclerViewAdapter.ViewHolder> {
 
     private List<Glumac> glumci;
     private OnProductClickedListener listener;
