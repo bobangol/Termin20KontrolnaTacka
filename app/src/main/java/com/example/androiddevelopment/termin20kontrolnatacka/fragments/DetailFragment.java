@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -25,7 +26,7 @@ import java.io.InputStream;
 
 
 // Each fragment extends Fragment class
-public class DetailFragment extends Fragment {
+public class DetailFragment extends Fragment implements AdapterView.OnItemSelectedListener{
 
     // TODO
     private static int NOTIFICATION_ID = 1;
@@ -133,4 +134,14 @@ public class DetailFragment extends Fragment {
     }
 
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // You can retrieve the selected item using
+        //product.setCategory(CategoryProvider.getCategoryById((int)id));
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        //product.setCategory(null);
+    }
 }

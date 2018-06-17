@@ -8,7 +8,7 @@ import android.support.annotation.Nullable;
 
 import com.example.androiddevelopment.termin20kontrolnatacka.tools.ReviewerTools;
 
-public class SympleService extends Service {
+public class SimpleService extends Service {
 
     @Nullable
     @Override
@@ -28,15 +28,16 @@ public class SympleService extends Service {
          * Provericemo trenutnu povezanost sa mrezom.
          * Za ovo koristimo dostupne pozive android operativnog sistema
          * */
-        int status = ReviewerTools.getConnectivityStatus(getApplicationContext());
+//        int status = ReviewerTools.getConnectivityStatus(getApplicationContext());
+
+        int status = intent.getExtras().getInt("STATUS");
 
         /**
          * Primer poziva asinhronog zadatka ako ima veze ka mrezi
          * npr. sinhronizacija mail-ova fotografija, muzike dokumenata isl.
          * */
-        new SympleSyncTask.SimpleSyncTask((Activity) getApplicationContext()).execute();
         if(status == ReviewerTools.TYPE_WIFI){
-
+            new SimpleSyncTask(getApplicationContext()).execute(status);
         }
 
         /**

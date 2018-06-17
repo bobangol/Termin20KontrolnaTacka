@@ -1,28 +1,56 @@
 package com.example.androiddevelopment.termin20kontrolnatacka.async;
 
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.example.androiddevelopment.termin20kontrolnatacka.R;
 import com.example.androiddevelopment.termin20kontrolnatacka.tools.ReviewerTools;
 
-public class SympleReceiver  extends BroadcastReceiver {
+/**
+ * Created by milossimic on 10/23/16.
+ *
+ * BroadcastReceiver je komonenta koja moze da reaguje na poruke drugih delova
+ * samog sistema kao i korisnicki definisanih. Cesto se koristi u sprezi sa
+ * servisima i asinhronim zadacima.
+ *
+ * Pored toga on moze da reaguje i na neke sistemske dogadjaje prispece sms poruke
+ * paljenje uredjaja, novi poziv isl.
+ */
+public class SimpleReceiver extends BroadcastReceiver{
 
     private static int notificationID = 1;
 
-    @Override
     /**
-     * Intent je bitan parametar za BroadcastReceiver. Kada posaljemo neku poruku,
-     * ovaj Intent cuva akciju i podatke koje smo mu poslali.
+     * Moramo pozvati unutar BroadcastReceiver-a zato sto on ima vezu ka nasoj aktivnosti
+     * gde se lista zapravo nalazi.
      * */
+    private void readFileAndFillList(Context context){
+        // Load product names from array resource
+
+        String[] products = ReviewerTools.readFromFile(context,"myfile.txt").split("\n");
+
+        // Create an ArrayAdaptar from the array of Strings
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, R.layout.list_item, products);
+        ListView listView = (ListView) ((Activity)context).findViewById(R.id.listaGlumaca);
+
+        // Assign adapter to ListView
+        listView.setAdapter(adapter);
+    }
+
     public void onReceive(Context context, Intent intent) {
-        Log.i("MY_ANDROID_APP", "Receive");
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         /**
          * Posto nas BroadcastReceiver reaguje samo na jednu akciju koju smo definisali
          * dobro je da proverimo da li som dobili bas tu akciju. Ako jesmo onda mozemo
@@ -33,9 +61,14 @@ public class SympleReceiver  extends BroadcastReceiver {
          * Dobra praksa je da se ovi nazivi izdvoje unutar neke staticke promenljive.
          * */
         if(intent.getAction().equals("SYNC_DATA")){
-            int resultCode = intent.getExtras().getInt("RESULT_CODE");
+            boolean showMessage = sharedPreferences.getBoolean(context.getString(R.string.allow_mesage), false);
 
-            prepareNotification(resultCode, context);
+            if (showMessage){
+                int resultCode = intent.getExtras().getInt("RESULT_CODE");
+                prepareNotification(resultCode, context);
+            }
+
+            readFileAndFillList(context);
         }
     }
 

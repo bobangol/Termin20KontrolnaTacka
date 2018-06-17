@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.example.androiddevelopment.termin20kontrolnatacka.async.SympleService" />
+        <service android:name="com.example.androiddevelopment.termin20kontrolnatacka.async.SimpleService" />
 
     </application>
 

@@ -16,7 +16,7 @@ public class GlumacAdapter extends RecyclerView.Adapter<GlumacAdapter.ViewHolder
         private List<Glumac> glumci;
         private MasterFragment.OnProductSelectedListener listener;
 
-        public GlumacAdapter(MasterFragment.OnProductSelectedListener listener, List<Glumac> glumci) {
+        public GlumacAdapter(List<Glumac> glumci, MasterFragment.OnProductSelectedListener listener) {
             this.glumci = glumci;
             this.listener = listener;
         }
@@ -58,6 +58,10 @@ public class GlumacAdapter extends RecyclerView.Adapter<GlumacAdapter.ViewHolder
                 textView = (TextView) v.findViewById(R.id.text);
             }
         }
+
+    public interface OnProductClickedListener{
+        void onProductClicked(int id);
+    }
 }
 
 

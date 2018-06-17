@@ -1,9 +1,18 @@
 package com.example.androiddevelopment.termin20kontrolnatacka;
 
+import android.Manifest;
+import android.app.AlarmManager;
 import android.app.FragmentTransaction;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.Build;
+import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -11,6 +20,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,16 +30,23 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.androiddevelopment.termin20kontrolnatacka.adapters.DrawerListAdapter;
-import com.example.androiddevelopment.termin20kontrolnatacka.async.SympleSyncTask;
+import com.example.androiddevelopment.termin20kontrolnatacka.async.SimpleReceiver;
+import com.example.androiddevelopment.termin20kontrolnatacka.async.SimpleService;
+import com.example.androiddevelopment.termin20kontrolnatacka.async.SimpleSyncTask;
 import com.example.androiddevelopment.termin20kontrolnatacka.dialogs.AboutDialog;
 import com.example.androiddevelopment.termin20kontrolnatacka.fragments.DetailFragment;
 import com.example.androiddevelopment.termin20kontrolnatacka.fragments.MasterFragment;
 import com.example.androiddevelopment.termin20kontrolnatacka.model.NavigationItem;
+import com.example.androiddevelopment.termin20kontrolnatacka.tools.ReviewerTools;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements MasterFragment.OnProductSelectedListener {
 
+    private static final String TAG = "PERMISSIONS";
+
+    /* The click listner for ListView in the navigation drawer */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -54,12 +71,19 @@ public class MainActivity extends AppCompatActivity implements MasterFragment.On
 
     private int productId = 0;
 
+    private SimpleReceiver sync;
+    private PendingIntent pendingIntent;
+    private AlarmManager manager;
+
+    private SharedPreferences sharedPreferences;
+    private String synctime;
+    private boolean allowSync;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        setContentView(R.layout.activity_main);
 
         // Draws navigation items
         navigationItems.add(new NavigationItem(getString(R.string.drawer_home), getString(R.string.drawer_home_long), R.drawable.ic_action_product));
@@ -111,8 +135,8 @@ public class MainActivity extends AppCompatActivity implements MasterFragment.On
 
         if (savedInstanceState == null) {
             FragmentTransaction ft = getFragmentManager().beginTransaction();
-            MasterFragment listFragment = new MasterFragment();
-            ft.add(R.id.displayList, listFragment, "List_Fragment");
+            MasterFragment detailFragment = new MasterFragment();
+            ft.add(R.id.displayList, detailFragment, "Detail_Fragment");
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
             selectItemFromDrawer(0);
@@ -144,21 +168,87 @@ public class MainActivity extends AppCompatActivity implements MasterFragment.On
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Od verzije Marshmallow Android uvodi pojam dinamickih permisija
+     * Sto korisnicima olaksva rad, a programerima uvodi dodadan posao.
+     * Cela ideja ja u tome, da se permisije ili prava da aplikcija
+     * nesto uradi, ne zahtevaju prilikom instalacije, nego prilikom
+     * prve upotrebe te funkcionalnosti. To za posledicu ima da mi
+     * svaki put moramo da proverimo da li je odredjeno pravo dopustneo
+     * ili ne. Iako nije da ponovo trazimo da korisnik dopusti, u protivnom
+     * tu funkcionalnost necemo obaviti uopste.
+     * */
+
+    public  boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED &&
+                    checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                            == PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG,"Permission is granted");
+                return true;
+            } else {
+
+                Log.v(TAG,"Permission is revoked");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            Log.v(TAG,"Permission is granted");
+            return true;
+        }
+    }
+
+    /**
+     *
+     * Ako odredjena funkcija nije dopustena, saljemo zahtev android
+     * sistemu da zahteva odredjene permisije. Korisniku seprikazuje
+     * diloag u kom on zeli ili ne da dopusti odedjene permisije.
+     */
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults[0]== PackageManager.PERMISSION_GRANTED
+                && grantResults[1] == PackageManager.PERMISSION_GRANTED){
+            Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
+        }
+    }
+
+    /**
+     *
+     * Metoda koja je izmenjena da reflektuje rad sa Asinhronim zadacima
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                Toast.makeText(MainActivity.this, "Sinhronizacija pokrenuta u pozadini niti. dobro :)",Toast.LENGTH_SHORT).show();
-                new SympleSyncTask.SimpleSyncTask(MainActivity.this).execute();
+                if (isStoragePermissionGranted()) {
+                    String text = ReviewerTools.readFromFile(this, "myfile.txt");
+                    Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.action_add:
-                    Toast.makeText(MainActivity.this, "Sinhronizacija pokrenuta u pozadini niti. dobro :)",Toast.LENGTH_SHORT).show();
-                new SympleSyncTask.SimpleSyncTask(MainActivity.this).execute();
+                if (isStoragePermissionGranted()) {
+                    ReviewerTools.writeToFile(new Date().toString(), this, "myfile.txt");
+                    break;
+                }
+            case R.id.test:
+                if (isStoragePermissionGranted()) {
+                    if (ReviewerTools.isFileExists(MainActivity.this, "myfile.txt")) {
+                        Toast.makeText(this, "Fajl postoji", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Fajl ne postoji", Toast.LENGTH_SHORT).show();
+                    }
+                }
                 break;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     public void setTitle(CharSequence title) {
@@ -253,6 +343,48 @@ public class MainActivity extends AppCompatActivity implements MasterFragment.On
         IntentFilter filter = new IntentFilter();
         filter.addAction("SYNC_DATA");
         registerReceiver(sync, filter);
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        consultPreferences();
+    }
+
+    private void setUpManager(){
+        Intent intent = new Intent(this, SimpleService.class);
+        int status = ReviewerTools.getConnectivityStatus(getApplicationContext());
+        intent.putExtra("STATUS", status);
+
+        if (allowSync) {
+            PendingIntent pintent = PendingIntent.getService(this, 0, intent, 0);
+            AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            alarm.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+                    ReviewerTools.calculateTimeTillNextSync(Integer.parseInt(synctime)),
+                    pintent);
+
+            Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void consultPreferences(){
+        synctime = sharedPreferences.getString(getString(R.string.pref_sync_list), "1");//1min
+        allowSync = sharedPreferences.getBoolean(getString(R.string.pref_sync), false);
+    }
+
+    @Override
+    protected void onPause() {
+        if (manager != null) {
+            manager.cancel(pendingIntent);
+            manager = null;
+        }
+
+        //osloboditi resurse
+        if(sync != null){
+            unregisterReceiver(sync);
+            sync = null;
+        }
+
+        super.onPause();
+
     }
 
 
